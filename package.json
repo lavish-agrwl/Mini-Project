@@ -1,0 +1,21 @@
+{
+  "name": "cricket-scoreboard-manager",
+  "version": "1.0.0",
+  "description": "Full-stack MERN Cricket Scoreboard Manager",
+  "scripts": {
+    "install-all": "cd server && npm install && cd ../client && npm install",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "seed": "cd server && npm run seed",
+    "build": "cd client && npm run build"
+  },
+  "keywords": [
+    "cricket",
+    "scoreboard",
+    "mern",
+    "react",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "MIT"
+}
