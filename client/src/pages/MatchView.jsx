@@ -104,27 +104,31 @@ const MatchView = () => {
   const winner = getWinner();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => navigate("/dashboard")}
-            className="text-primary-600 hover:text-primary-700 font-medium mb-4"
+            className="btn btn-secondary mb-4 flex items-center gap-2"
           >
-            ← Back to Dashboard
+            <span>←</span> Back to Dashboard
           </button>
 
-          <div className="card">
+          <div className="card border-2 border-primary-200">
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  {match.name}
-                </h1>
-                <p className="text-gray-600">
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-3xl">🏏</span>
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                    {match.name}
+                  </h1>
+                </div>
+                <p className="text-lg font-semibold text-gray-700">
                   {match.teams[0].name} vs {match.teams[1].name}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                  <span>📅</span>{" "}
                   {new Date(match.matchDate).toLocaleDateString()} •{" "}
                   {match.oversPerInnings} overs
                 </p>
@@ -200,97 +204,128 @@ const MatchView = () => {
         </div>
 
         {/* Ball-by-Ball History */}
-        <div className="card">
-          <h2 className="text-2xl font-bold mb-4">Ball-by-Ball Commentary</h2>
+        <div className="card border-2 border-purple-200">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-3xl">📊</span>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+              Ball-by-Ball Commentary
+            </h2>
+          </div>
 
-          {match.innings.map((inning, inningIdx) => {
-            const team = match.teams[inning.battingTeamIndex];
-            return (
-              <div key={inningIdx} className="mb-8">
-                <h3 className="text-lg font-semibold mb-3 text-primary-700">
-                  Inning {inningIdx + 1} - {team.name} Batting
-                </h3>
-
-                {inning.balls.length === 0 ? (
-                  <p className="text-gray-500">No balls recorded</p>
-                ) : (
-                  <div className="space-y-2">
-                    {inning.balls.map((ball, ballIdx) => {
-                      const batsman = team.players.find(
-                        (p) => p._id === ball.batsmanId
-                      );
-                      return (
-                        <div
-                          key={ball._id}
-                          className="flex justify-between items-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-4">
-                              <span className="font-mono text-sm font-medium text-gray-700">
-                                {ball.overNumber}.{ball.ballInOver}
-                              </span>
-                              <span className="text-sm text-gray-600">
-                                {batsman?.name || "Unknown"}
-                              </span>
-                              <span
-                                className={`font-bold ${
-                                  ball.eventType === "wicket"
-                                    ? "text-red-600"
-                                    : ball.runs >= 4
-                                    ? "text-green-600"
-                                    : "text-gray-900"
-                                }`}
-                              >
-                                {ball.eventType === "wicket"
-                                  ? "⚠️ WICKET"
-                                  : ball.eventType === "wide"
-                                  ? `Wide + ${ball.runs}`
-                                  : ball.eventType === "no-ball"
-                                  ? `No Ball + ${ball.runs}`
-                                  : ball.eventType === "bye"
-                                  ? `Bye ${ball.runs}`
-                                  : ball.eventType === "leg-bye"
-                                  ? `Leg Bye ${ball.runs}`
-                                  : `${ball.runs} ${
-                                      ball.runs === 4
-                                        ? "🏏"
-                                        : ball.runs === 6
-                                        ? "🎯"
-                                        : ""
-                                    }`}
-                              </span>
-                            </div>
-                            {ball.notes && (
-                              <p className="text-xs text-gray-600 mt-1 ml-20">
-                                {ball.notes}
-                              </p>
-                            )}
-                          </div>
-                          <button
-                            onClick={() => openEditModal(ball)}
-                            className="btn btn-secondary text-sm"
-                          >
-                            Edit
-                          </button>
-                        </div>
-                      );
-                    })}
+          {match.innings.length === 0 ? (
+            <div className="text-center py-12 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
+              <span className="text-6xl mb-4 block">🏏</span>
+              <p className="text-xl font-semibold text-gray-700 mb-2">
+                No balls recorded yet
+              </p>
+              <p className="text-gray-600">
+                Start the match to begin recording balls
+              </p>
+            </div>
+          ) : (
+            match.innings.map((inning, inningIdx) => {
+              const team = match.teams[inning.battingTeamIndex];
+              return (
+                <div key={inningIdx} className="mb-8 last:mb-0">
+                  <div className="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-xl mb-4">
+                    <h3 className="text-xl font-bold flex items-center gap-2">
+                      <span>🏏</span> Inning {inningIdx + 1} - {team.name}{" "}
+                      Batting
+                    </h3>
                   </div>
-                )}
-              </div>
-            );
-          })}
+
+                  {inning.balls.length === 0 ? (
+                    <div className="text-center py-8 bg-gray-50 rounded-xl">
+                      <p className="text-gray-500">
+                        No balls recorded in this inning
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {inning.balls.map((ball, ballIdx) => {
+                        const batsman = team.players.find(
+                          (p) => p._id === ball.batsmanId
+                        );
+                        return (
+                          <div
+                            key={ball._id}
+                            className="flex justify-between items-center p-4 bg-white border-2 border-gray-200 hover:border-primary-400 rounded-xl transition-all duration-200 hover:shadow-md"
+                          >
+                            <div className="flex-1">
+                              <div className="flex items-center gap-4">
+                                <span className="font-mono text-sm font-medium text-gray-700">
+                                  {ball.overNumber}.{ball.ballInOver}
+                                </span>
+                                <span className="text-sm text-gray-600">
+                                  {batsman?.name || "Unknown"}
+                                </span>
+                                <span
+                                  className={`font-bold ${
+                                    ball.eventType === "wicket"
+                                      ? "text-red-600"
+                                      : ball.runs >= 4
+                                      ? "text-green-600"
+                                      : "text-gray-900"
+                                  }`}
+                                >
+                                  {ball.eventType === "wicket"
+                                    ? "⚠️ WICKET"
+                                    : ball.eventType === "wide"
+                                    ? `Wide + ${ball.runs}`
+                                    : ball.eventType === "no-ball"
+                                    ? `No Ball + ${ball.runs}`
+                                    : ball.eventType === "bye"
+                                    ? `Bye ${ball.runs}`
+                                    : ball.eventType === "leg-bye"
+                                    ? `Leg Bye ${ball.runs}`
+                                    : `${ball.runs} ${
+                                        ball.runs === 4
+                                          ? "🏏"
+                                          : ball.runs === 6
+                                          ? "🎯"
+                                          : ""
+                                      }`}
+                                </span>
+                              </div>
+                              {ball.notes && (
+                                <p className="text-xs text-gray-600 mt-1 ml-20">
+                                  {ball.notes}
+                                </p>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => openEditModal(ball)}
+                              className="btn bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 text-sm flex items-center gap-2"
+                            >
+                              <span>✏️</span> Edit
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
       {/* Edit Ball Modal */}
       {editingBall && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Edit Ball</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Over {editingBall.overNumber}.{editingBall.ballInOver}
-            </p>
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border-2 border-primary-200 animate-scale-in">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-3xl">✏️</span>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                Edit Ball
+              </h3>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3 mb-6">
+              <p className="text-sm font-semibold text-gray-700">
+                📍 Over {editingBall.overNumber}.{editingBall.ballInOver}
+              </p>
+            </div>
 
             <form onSubmit={handleEditBall} className="space-y-4">
               <div>

@@ -27,19 +27,32 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 px-4">
-      <div className="card max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-600 via-purple-600 to-indigo-700 px-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+
+      <div className="card max-w-md w-full relative z-10 animate-scale-in shadow-2xl border-0">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
+            <span className="text-3xl">🏏</span>
+          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent mb-2">
             Cricket Scoreboard
           </h1>
           <p className="text-gray-600">Sign in to manage your matches</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg animate-slide-up">
+              <div className="flex items-center">
+                <span className="text-xl mr-2">⚠️</span>
+                <span>{error}</span>
+              </div>
             </div>
           )}
 
@@ -101,9 +114,14 @@ const Login = () => {
         </div>
 
         <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-500 text-center">
-            Demo: demo@cricket.com / demo123
-          </p>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 text-center">
+            <p className="text-xs text-gray-500 mb-2 font-medium">
+              🎯 Demo Account
+            </p>
+            <p className="text-sm font-mono text-gray-700">
+              demo@cricket.com / demo123
+            </p>
+          </div>
         </div>
       </div>
     </div>

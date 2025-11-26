@@ -10,6 +10,13 @@ const LiveScoring = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [showExtraMenu, setShowExtraMenu] = useState(false);
+  const [showWicketMenu, setShowWicketMenu] = useState(false);
+  const [editingBall, setEditingBall] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    eventType: "runs",
+    runs: 0,
+    notes: "",
+  });
   const [ballData, setBallData] = useState({
     eventType: "runs",
     runs: 0,
@@ -42,15 +49,15 @@ const LiveScoring = () => {
     });
   };
 
-  const handleWicket = async () => {
-    const wicketNotes = prompt("Wicket type (e.g., caught, bowled, run out):");
+  const handleWicket = async (wicketType = "Out") => {
     await recordBall({
       eventType: "wicket",
       runs: 0,
       batsmanId: match.current.strikerId,
       extraType: null,
-      notes: wicketNotes || "Out",
+      notes: wicketType,
     });
+    setShowWicketMenu(false);
   };
 
   const handleExtra = async (extraType, runs = 1) => {
@@ -81,6 +88,40 @@ const LiveScoring = () => {
       }
     } catch (error) {
       setError(error.response?.data?.message || "Failed to record ball");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const openEditModal = (ball) => {
+    setEditingBall(ball);
+    setEditFormData({
+      eventType: ball.eventType,
+      runs: ball.runs,
+      notes: ball.notes || "",
+    });
+  };
+
+  const closeEditModal = () => {
+    setEditingBall(null);
+    setEditFormData({ eventType: "runs", runs: 0, notes: "" });
+  };
+
+  const handleEditBall = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const response = await matchAPI.editBall(
+        id,
+        editingBall._id,
+        editFormData
+      );
+      setMatch(response.data.match);
+      closeEditModal();
+      alert("Ball updated successfully. Scores have been recalculated.");
+    } catch (error) {
+      alert(error.response?.data?.message || "Failed to update ball");
     } finally {
       setSubmitting(false);
     }
@@ -130,22 +171,30 @@ const LiveScoring = () => {
   const lastBalls = currentInning.balls.slice(-6).reverse();
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pb-8">
       {/* Header */}
-      <div className="bg-primary-600 text-white py-4 px-4 shadow-lg">
+      <div className="bg-gradient-to-r from-primary-600 via-purple-600 to-indigo-600 text-white py-6 px-4 shadow-2xl">
         <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-2">
-            <h1 className="text-xl font-bold">{match.name}</h1>
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">🏏</span>
+              <h1 className="text-2xl font-bold">{match.name}</h1>
+            </div>
             <button
               onClick={() => navigate("/dashboard")}
-              className="text-white hover:text-primary-100"
+              className="btn bg-white/20 hover:bg-white/30 backdrop-blur-sm border-0 text-white"
             >
-              Exit
+              <span className="mr-1">←</span> Exit
             </button>
           </div>
-          <p className="text-sm text-primary-100">
-            Inning {match.current.inningIndex + 1} - {battingTeam.name} batting
-          </p>
+          <div className="flex items-center gap-2 ml-12">
+            <span className="badge bg-white/20 text-white backdrop-blur-sm">
+              🔴 LIVE - Inning {match.current.inningIndex + 1}
+            </span>
+            <p className="text-sm text-primary-100">
+              {battingTeam.name} batting
+            </p>
+          </div>
         </div>
       </div>
 
@@ -160,35 +209,40 @@ const LiveScoring = () => {
           {/* Main Scoring Area */}
           <div className="lg:col-span-2 space-y-6">
             {/* Scoreboard */}
-            <div className="card bg-gradient-to-r from-primary-600 to-primary-700 text-white">
-              <div className="flex justify-between items-center mb-4">
+            <div className="card bg-gradient-to-br from-primary-600 via-purple-600 to-indigo-600 text-white shadow-2xl border-0">
+              <div className="flex justify-between items-center mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold">{battingTeam.name}</h2>
-                  <p className="text-sm text-primary-100">
-                    vs {bowlingTeam.name}
+                  <h2 className="text-3xl font-bold mb-1">
+                    {battingTeam.name}
+                  </h2>
+                  <p className="text-sm text-white/80 flex items-center gap-2">
+                    <span>🎯</span> vs {bowlingTeam.name}
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-4xl font-bold">
-                    {currentInning.totalRuns}/{currentInning.wickets}
+                  <div className="score-display text-white mb-1">
+                    {currentInning.totalRuns}
+                    <span className="text-2xl">/{currentInning.wickets}</span>
                   </div>
-                  <div className="text-lg">
-                    Overs: {currentInning.oversCompleted.toFixed(1)}
+                  <div className="text-lg text-white/90 flex items-center justify-end gap-1">
+                    <span>⏱️</span> {currentInning.oversCompleted.toFixed(1)}
                   </div>
                 </div>
               </div>
 
               {/* Current Over */}
-              <div className="bg-white/10 rounded-lg p-3">
-                <p className="text-xs text-primary-100 mb-1">This Over</p>
-                <div className="flex gap-2">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
+                <p className="text-xs text-white/80 mb-2 font-semibold flex items-center gap-2">
+                  <span>🎯</span> THIS OVER
+                </p>
+                <div className="flex gap-2 flex-wrap">
                   {lastBalls.length === 0 ? (
-                    <span className="text-sm">No balls yet</span>
+                    <span className="text-sm text-white/70">No balls yet</span>
                   ) : (
                     lastBalls.map((ball, idx) => (
                       <div
                         key={idx}
-                        className="w-10 h-10 rounded-full bg-white text-primary-700 flex items-center justify-center font-bold text-sm"
+                        className="w-12 h-12 rounded-xl bg-white text-primary-700 flex items-center justify-center font-bold text-lg shadow-lg transform hover:scale-110 transition-transform"
                       >
                         {ball.eventType === "wicket"
                           ? "W"
@@ -206,28 +260,38 @@ const LiveScoring = () => {
 
             {/* Batsmen */}
             <div className="card">
-              <h3 className="text-lg font-semibold mb-3">Current Batsmen</h3>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border-2 border-green-300">
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <span>🏏</span> Current Batsmen
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-400 shadow-md">
                   <div>
-                    <span className="font-medium">{striker?.name}</span>
-                    <span className="text-xs text-green-600 ml-2">
-                      ★ On Strike
+                    <span className="font-bold text-lg">{striker?.name}</span>
+                    <span className="badge bg-green-500 text-white ml-2">
+                      ★ STRIKE
                     </span>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">
-                      {striker?.runs || 0} ({striker?.ballsFaced || 0})
+                    <div className="text-2xl font-bold text-green-600">
+                      {striker?.runs || 0}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      ({striker?.ballsFaced || 0} balls)
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-200">
                   <div>
-                    <span className="font-medium">{nonStriker?.name}</span>
+                    <span className="font-bold text-lg">
+                      {nonStriker?.name}
+                    </span>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold">
-                      {nonStriker?.runs || 0} ({nonStriker?.ballsFaced || 0})
+                    <div className="text-2xl font-bold text-gray-700">
+                      {nonStriker?.runs || 0}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      ({nonStriker?.ballsFaced || 0} balls)
                     </div>
                   </div>
                 </div>
@@ -235,19 +299,24 @@ const LiveScoring = () => {
             </div>
 
             {/* Scoring Controls */}
-            <div className="card">
-              <h3 className="text-lg font-semibold mb-4">Record Ball</h3>
+            <div className="card border-2 border-primary-200">
+              <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
+                <span>🎯</span> Record Ball
+              </h3>
 
               {submitting ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">Recording ball...</p>
+                <div className="text-center py-12">
+                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-600 border-t-transparent"></div>
+                  <p className="text-gray-600 mt-4 font-medium">
+                    Recording ball...
+                  </p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {/* Runs */}
                   <div>
-                    <p className="text-sm font-medium text-gray-700 mb-2">
-                      Runs
+                    <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                      <span>🏏</span> RUNS
                     </p>
                     <div className="grid grid-cols-7 gap-2">
                       {[0, 1, 2, 3, 4, 5, 6].map((runs) => (
@@ -256,11 +325,11 @@ const LiveScoring = () => {
                           onClick={() => handleRunClick(runs)}
                           className={`btn ${
                             runs === 0
-                              ? "btn-secondary"
+                              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                               : runs === 4 || runs === 6
-                              ? "btn-success"
-                              : "btn-primary"
-                          } text-lg font-bold h-16`}
+                              ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700"
+                              : "bg-gradient-to-br from-primary-500 to-blue-600 text-white hover:from-primary-600 hover:to-blue-700"
+                          } text-xl font-bold h-16 shadow-lg hover:shadow-xl`}
                         >
                           {runs}
                         </button>
@@ -271,54 +340,119 @@ const LiveScoring = () => {
                   {/* Wicket & Extras */}
                   <div className="grid grid-cols-2 gap-4">
                     <button
-                      onClick={handleWicket}
-                      className="btn btn-danger h-16 text-lg font-bold"
+                      onClick={() => setShowWicketMenu(!showWicketMenu)}
+                      className="btn bg-gradient-to-br from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 h-16 text-lg font-bold shadow-lg hover:shadow-xl"
                     >
-                      WICKET
+                      <span className="mr-2">❌</span> WICKET
                     </button>
                     <button
                       onClick={() => setShowExtraMenu(!showExtraMenu)}
-                      className="btn btn-secondary h-16 text-lg font-bold"
+                      className="btn bg-gradient-to-br from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 h-16 text-lg font-bold shadow-lg hover:shadow-xl"
                     >
-                      EXTRAS
+                      <span className="mr-2">➕</span> EXTRAS
                     </button>
                   </div>
 
                   {/* Extras Menu */}
                   {showExtraMenu && (
-                    <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                      <p className="text-sm font-medium text-gray-700 mb-2">
-                        Select Extra Type:
+                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border-2 border-orange-200 animate-slide-up">
+                      <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                        <span>📌</span> Select Extra Type:
                       </p>
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         <button
                           onClick={() => handleExtra("wide", 1)}
-                          className="btn btn-secondary"
+                          className="btn bg-white border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                         >
                           Wide (1 run)
                         </button>
                         <button
                           onClick={() => handleExtra("no-ball", 1)}
-                          className="btn btn-secondary"
+                          className="btn bg-white border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                         >
                           No Ball (1 run)
                         </button>
                         <button
                           onClick={() => handleExtra("bye", 1)}
-                          className="btn btn-secondary"
+                          className="btn bg-white border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                         >
                           Bye (1 run)
                         </button>
                         <button
                           onClick={() => handleExtra("leg-bye", 1)}
-                          className="btn btn-secondary"
+                          className="btn bg-white border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                         >
                           Leg Bye (1 run)
                         </button>
                       </div>
                       <button
                         onClick={() => setShowExtraMenu(false)}
-                        className="btn btn-secondary w-full mt-2"
+                        className="btn btn-secondary w-full mt-3"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Wicket Type Menu */}
+                  {showWicketMenu && (
+                    <div className="bg-gradient-to-br from-red-50 to-rose-50 p-5 rounded-xl border-2 border-red-200 animate-slide-up">
+                      <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                        <span>❌</span> Select Wicket Type:
+                      </p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          onClick={() => handleWicket("Bowled")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🎯 Bowled
+                        </button>
+                        <button
+                          onClick={() => handleWicket("Caught")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🤚 Caught
+                        </button>
+                        <button
+                          onClick={() => handleWicket("LBW")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🦵 LBW
+                        </button>
+                        <button
+                          onClick={() => handleWicket("Run Out")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🏃 Run Out
+                        </button>
+                        <button
+                          onClick={() => handleWicket("Stumped")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🧔 Stumped
+                        </button>
+                        <button
+                          onClick={() => handleWicket("Hit Wicket")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🔨 Hit Wicket
+                        </button>
+                        <button
+                          onClick={() => handleWicket("Caught & Bowled")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          🏏 C&B
+                        </button>
+                        <button
+                          onClick={() => handleWicket("Out")}
+                          className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
+                        >
+                          ❌ Other
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => setShowWicketMenu(false)}
+                        className="btn btn-secondary w-full mt-3"
                       >
                         Cancel
                       </button>
@@ -363,11 +497,24 @@ const LiveScoring = () => {
             </div>
 
             {/* Ball-by-Ball Log */}
-            <div className="card">
-              <h3 className="text-lg font-semibold mb-3">Recent Balls</h3>
+            <div className="card border-2 border-purple-200">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-2xl">📊</span>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                  Recent Balls
+                </h3>
+              </div>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {currentInning.balls.length === 0 ? (
-                  <p className="text-sm text-gray-500">No balls recorded yet</p>
+                  <div className="text-center py-8 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
+                    <span className="text-4xl mb-2 block">🏏</span>
+                    <p className="text-sm text-gray-600">
+                      No balls recorded yet
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Start scoring to see ball history
+                    </p>
+                  </div>
                 ) : (
                   currentInning.balls
                     .slice()
@@ -380,34 +527,52 @@ const LiveScoring = () => {
                       return (
                         <div
                           key={idx}
-                          className="text-sm p-2 bg-gray-50 rounded"
+                          className="p-3 bg-gradient-to-r from-white to-gray-50 rounded-xl border-2 border-gray-200 hover:border-primary-400 transition-all shadow-sm hover:shadow-md"
                         >
-                          <div className="flex justify-between">
-                            <span className="font-medium">
-                              {ball.overNumber}.{ball.ballInOver}
-                            </span>
-                            <span
-                              className={`font-bold ${
-                                ball.eventType === "wicket"
-                                  ? "text-red-600"
-                                  : ball.runs >= 4
-                                  ? "text-green-600"
-                                  : "text-gray-700"
-                              }`}
-                            >
-                              {ball.eventType === "wicket"
-                                ? "WICKET"
-                                : ball.eventType === "wide"
-                                ? `Wd ${ball.runs}`
-                                : ball.eventType === "no-ball"
-                                ? `Nb ${ball.runs}`
-                                : `${ball.runs} run${
-                                    ball.runs !== 1 ? "s" : ""
-                                  }`}
-                            </span>
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-3 flex-1">
+                              <span className="font-mono font-bold text-sm bg-primary-100 text-primary-700 px-2 py-1 rounded-lg">
+                                {ball.overNumber}.{ball.ballInOver}
+                              </span>
+                              <span className="text-sm text-gray-600">
+                                {batsman?.name || "Unknown"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`font-bold text-lg px-3 py-1 rounded-lg ${
+                                  ball.eventType === "wicket"
+                                    ? "bg-red-100 text-red-700"
+                                    : ball.runs >= 4
+                                    ? "bg-green-100 text-green-700"
+                                    : ball.runs > 0
+                                    ? "bg-blue-100 text-blue-700"
+                                    : "bg-gray-100 text-gray-700"
+                                }`}
+                              >
+                                {ball.eventType === "wicket"
+                                  ? "❌ W"
+                                  : ball.eventType === "wide"
+                                  ? `Wd+${ball.runs}`
+                                  : ball.eventType === "no-ball"
+                                  ? `Nb+${ball.runs}`
+                                  : ball.runs === 4
+                                  ? "🏏 4"
+                                  : ball.runs === 6
+                                  ? "🎯 6"
+                                  : ball.runs}
+                              </span>
+                              <button
+                                onClick={() => openEditModal(ball)}
+                                className="btn bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 text-xs px-3 py-1 flex items-center gap-1"
+                                title="Edit this ball"
+                              >
+                                ✏️
+                              </button>
+                            </div>
                           </div>
                           {ball.notes && (
-                            <p className="text-xs text-gray-600 mt-1">
+                            <p className="text-xs text-gray-600 mt-2 pl-2 border-l-2 border-gray-300">
                               {ball.notes}
                             </p>
                           )}
@@ -448,6 +613,105 @@ const LiveScoring = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Ball Modal */}
+      {editingBall && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border-2 border-primary-200 animate-scale-in">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-3xl">✏️</span>
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                Edit Ball
+              </h3>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-3 mb-6">
+              <p className="text-sm font-semibold text-gray-700">
+                📍 Over {editingBall.overNumber}.{editingBall.ballInOver}
+              </p>
+            </div>
+
+            <form onSubmit={handleEditBall} className="space-y-5">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Event Type
+                </label>
+                <select
+                  value={editFormData.eventType}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      eventType: e.target.value,
+                    })
+                  }
+                  className="input"
+                  disabled={submitting}
+                >
+                  <option value="runs">Runs</option>
+                  <option value="wicket">Wicket</option>
+                  <option value="wide">Wide</option>
+                  <option value="no-ball">No Ball</option>
+                  <option value="bye">Bye</option>
+                  <option value="leg-bye">Leg Bye</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Runs
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="6"
+                  value={editFormData.runs}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      runs: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="input"
+                  disabled={submitting}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Notes (Optional)
+                </label>
+                <textarea
+                  value={editFormData.notes}
+                  onChange={(e) =>
+                    setEditFormData({ ...editFormData, notes: e.target.value })
+                  }
+                  className="input"
+                  rows="3"
+                  placeholder="Add notes about this ball..."
+                  disabled={submitting}
+                />
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="btn btn-secondary flex-1"
+                  disabled={submitting}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary flex-1"
+                  disabled={submitting}
+                >
+                  {submitting ? "Updating..." : "Update Ball"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

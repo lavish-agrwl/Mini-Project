@@ -4,36 +4,78 @@
 
 @layer base {
     body {
-        @apply bg-gray-50 text-gray-900;
+        @apply bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900;
     }
 }
 
 @layer components {
     .btn {
-        @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        @apply px-5 py-2.5 rounded-xl font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-105 active:scale-95 shadow-sm;
     }
 
     .btn-primary {
-        @apply bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
+        @apply bg-gradient-to-r from-primary-600 to-primary-700 text-white hover:from-primary-700 hover:to-primary-800 focus:ring-primary-500 shadow-md hover:shadow-lg;
     }
 
     .btn-secondary {
-        @apply bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-400;
+        @apply bg-white border-2 border-gray-300 text-gray-700 hover:border-gray-400 hover:bg-gray-50 focus:ring-gray-400;
     }
 
     .btn-success {
-        @apply bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
+        @apply bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 focus:ring-green-500 shadow-md hover:shadow-lg;
     }
 
     .btn-danger {
-        @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+        @apply bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-700 hover:to-rose-700 focus:ring-red-500 shadow-md hover:shadow-lg;
     }
 
     .input {
-        @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+        @apply w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-white;
     }
 
     .card {
-        @apply bg-white rounded-xl shadow-md p-6;
+        @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-soft p-6 border border-gray-100 hover:shadow-xl transition-all duration-300;
+    }
+
+    .glass {
+        @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-soft;
+    }
+
+    .badge {
+        @apply px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide;
+    }
+
+    .score-display {
+        @apply text-4xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent;
+    }
+}
+
+@layer utilities {
+    @keyframes blob {
+
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        33% {
+            transform: translate(30px, -50px) scale(1.1);
+        }
+
+        66% {
+            transform: translate(-20px, 20px) scale(0.9);
+        }
+    }
+
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+
+    .animation-delay-4000 {
+        animation-delay: 4s;
     }
 }
