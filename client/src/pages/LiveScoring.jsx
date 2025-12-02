@@ -173,11 +173,10 @@ const LiveScoring = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 pb-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 via-purple-600 to-indigo-600 text-white py-6 px-4 shadow-2xl">
+      <div className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-6 px-4 shadow-2xl">
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-3">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">🏏</span>
               <h1 className="text-2xl font-bold">{match.name}</h1>
             </div>
             <button
@@ -189,7 +188,7 @@ const LiveScoring = () => {
           </div>
           <div className="flex items-center gap-2 ml-12">
             <span className="badge bg-white/20 text-white backdrop-blur-sm">
-              🔴 LIVE - Inning {match.current.inningIndex + 1}
+              LIVE - Inning {match.current.inningIndex + 1}
             </span>
             <p className="text-sm text-primary-100">
               {battingTeam.name} batting
@@ -209,14 +208,14 @@ const LiveScoring = () => {
           {/* Main Scoring Area */}
           <div className="lg:col-span-2 space-y-6">
             {/* Scoreboard */}
-            <div className="card bg-gradient-to-br from-primary-600 via-purple-600 to-indigo-600 text-white shadow-2xl border-0">
+            <div className="card bg-gradient-to-br from-primary-600 to-primary-800 text-white shadow-2xl border-0">
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-3xl font-bold mb-1">
                     {battingTeam.name}
                   </h2>
                   <p className="text-sm text-white/80 flex items-center gap-2">
-                    <span>🎯</span> vs {bowlingTeam.name}
+                    vs {bowlingTeam.name}
                   </p>
                 </div>
                 <div className="text-right">
@@ -225,7 +224,7 @@ const LiveScoring = () => {
                     <span className="text-2xl">/{currentInning.wickets}</span>
                   </div>
                   <div className="text-lg text-white/90 flex items-center justify-end gap-1">
-                    <span>⏱️</span> {currentInning.oversCompleted.toFixed(1)}
+                    {currentInning.oversCompleted.toFixed(1)}\n{" "}
                   </div>
                 </div>
               </div>
@@ -233,7 +232,7 @@ const LiveScoring = () => {
               {/* Current Over */}
               <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 border border-white/30">
                 <p className="text-xs text-white/80 mb-2 font-semibold flex items-center gap-2">
-                  <span>🎯</span> THIS OVER
+                  THIS OVER
                 </p>
                 <div className="flex gap-2 flex-wrap">
                   {lastBalls.length === 0 ? (
@@ -261,7 +260,7 @@ const LiveScoring = () => {
             {/* Batsmen */}
             <div className="card">
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <span>🏏</span> Current Batsmen
+                Current Batsmen
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-400 shadow-md">
@@ -301,7 +300,7 @@ const LiveScoring = () => {
             {/* Scoring Controls */}
             <div className="card border-2 border-primary-200">
               <h3 className="text-xl font-bold mb-5 flex items-center gap-2">
-                <span>🎯</span> Record Ball
+                Record Ball
               </h3>
 
               {submitting ? (
@@ -316,7 +315,7 @@ const LiveScoring = () => {
                   {/* Runs */}
                   <div>
                     <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                      <span>🏏</span> RUNS
+                      RUNS
                     </p>
                     <div className="grid grid-cols-7 gap-2">
                       {[0, 1, 2, 3, 4, 5, 6].map((runs) => (
@@ -357,7 +356,7 @@ const LiveScoring = () => {
                   {showExtraMenu && (
                     <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-5 rounded-xl border-2 border-orange-200 animate-slide-up">
                       <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                        <span>📌</span> Select Extra Type:
+                        Select Extra Type:
                       </p>
                       <div className="grid grid-cols-2 gap-3">
                         <button
@@ -405,49 +404,49 @@ const LiveScoring = () => {
                           onClick={() => handleWicket("Bowled")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🎯 Bowled
+                          Bowled
                         </button>
                         <button
                           onClick={() => handleWicket("Caught")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🤚 Caught
+                          Caught
                         </button>
                         <button
                           onClick={() => handleWicket("LBW")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🦵 LBW
+                          LBW
                         </button>
                         <button
                           onClick={() => handleWicket("Run Out")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🏃 Run Out
+                          Run Out
                         </button>
                         <button
                           onClick={() => handleWicket("Stumped")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🧔 Stumped
+                          Stumped
                         </button>
                         <button
                           onClick={() => handleWicket("Hit Wicket")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🔨 Hit Wicket
+                          Hit Wicket
                         </button>
                         <button
                           onClick={() => handleWicket("Caught & Bowled")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          🏏 C&B
+                          C&B
                         </button>
                         <button
                           onClick={() => handleWicket("Out")}
                           className="btn bg-white border-2 border-red-300 text-red-700 hover:bg-red-50 font-semibold"
                         >
-                          ❌ Other
+                          Other
                         </button>
                       </div>
                       <button
@@ -497,17 +496,15 @@ const LiveScoring = () => {
             </div>
 
             {/* Ball-by-Ball Log */}
-            <div className="card border-2 border-purple-200">
+            <div className="card border-2 border-primary-200">
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">📊</span>
-                <h3 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                <h3 className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                   Recent Balls
                 </h3>
               </div>
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {currentInning.balls.length === 0 ? (
-                  <div className="text-center py-8 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
-                    <span className="text-4xl mb-2 block">🏏</span>
+                  <div className="text-center py-8 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl">
                     <p className="text-sm text-gray-600">
                       No balls recorded yet
                     </p>
@@ -557,17 +554,17 @@ const LiveScoring = () => {
                                   : ball.eventType === "no-ball"
                                   ? `Nb+${ball.runs}`
                                   : ball.runs === 4
-                                  ? "🏏 4"
+                                  ? "4"
                                   : ball.runs === 6
-                                  ? "🎯 6"
+                                  ? "6"
                                   : ball.runs}
                               </span>
                               <button
                                 onClick={() => openEditModal(ball)}
-                                className="btn bg-gradient-to-r from-purple-500 to-indigo-600 text-white hover:from-purple-600 hover:to-indigo-700 text-xs px-3 py-1 flex items-center gap-1"
+                                className="btn bg-gradient-to-r from-primary-500 to-primary-700 text-white hover:from-primary-600 hover:to-primary-800 text-xs px-3 py-1 flex items-center gap-1"
                                 title="Edit this ball"
                               >
-                                ✏️
+                                Edit
                               </button>
                             </div>
                           </div>
@@ -619,14 +616,13 @@ const LiveScoring = () => {
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border-2 border-primary-200 animate-scale-in">
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">✏️</span>
-              <h3 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                 Edit Ball
               </h3>
             </div>
             <div className="bg-blue-50 rounded-lg p-3 mb-6">
               <p className="text-sm font-semibold text-gray-700">
-                📍 Over {editingBall.overNumber}.{editingBall.ballInOver}
+                Over {editingBall.overNumber}.{editingBall.ballInOver}
               </p>
             </div>
 

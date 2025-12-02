@@ -1,5 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Box,
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+  Chip,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Paper,
+  Divider,
+  Stack,
+} from "@mui/material";
+import {
+  SportsCricket,
+  Logout,
+  Add,
+  PlayArrow,
+  Edit,
+  Visibility,
+  Delete,
+  CalendarToday,
+  Timer,
+  EmojiEvents,
+} from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 import { matchAPI } from "../services/api";
 
@@ -36,21 +65,30 @@ const Dashboard = () => {
     }
   };
 
-  const getStatusBadge = (status) => {
-    const styles = {
-      not_started:
-        "bg-gradient-to-r from-gray-400 to-gray-500 text-white shadow-sm",
-      in_progress:
-        "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm animate-pulse",
-      finished:
-        "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm",
+  const getStatusChip = (status) => {
+    const config = {
+      not_started: { label: "Not Started", color: "default" },
+      in_progress: { label: "Live", color: "primary" },
+      finished: { label: "Finished", color: "success" },
     };
-    const labels = {
-      not_started: "⏸️ Not Started",
-      in_progress: "🔴 Live",
-      finished: "✅ Finished",
-    };
-    return <span className={`badge ${styles[status]}`}>{labels[status]}</span>;
+    const { label, color } = config[status];
+    return (
+      <Chip
+        label={label}
+        color={color}
+        size="small"
+        sx={{
+          fontWeight: 600,
+          ...(status === "in_progress" && {
+            animation: "pulse 2s ease-in-out infinite",
+            "@keyframes pulse": {
+              "0%, 100%": { opacity: 1 },
+              "50%": { opacity: 0.7 },
+            },
+          }),
+        }}
+      />
+    );
   };
 
   const getMatchScore = (match) => {
@@ -66,150 +104,250 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
+    <Box sx={{ minHeight: "100vh", bgcolor: "grey.50" }}>
       {/* Header */}
-      <header className="bg-gradient-to-r from-primary-600 to-purple-600 shadow-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-3xl">🏏</span>
-                <h1 className="text-3xl font-bold text-white">
-                  Cricket Scoreboard
-                </h1>
-              </div>
-              <p className="text-sm text-primary-100 ml-12">
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{
+          background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+        }}
+      >
+        <Toolbar sx={{ py: 2 }}>
+          <Box
+            sx={{ display: "flex", alignItems: "center", gap: 2, flexGrow: 1 }}
+          >
+            <SportsCricket sx={{ fontSize: 40 }} />
+            <Box>
+              <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                Cricket Scoreboard
+              </Typography>
+              <Typography variant="caption" sx={{ opacity: 0.9 }}>
                 Welcome back, {user?.name || user?.email}!
-              </p>
-            </div>
-            <button
-              onClick={logout}
-              className="btn bg-white/20 hover:bg-white/30 text-white border-0 backdrop-blur-sm"
-            >
-              <span className="mr-2">🚪</span> Logout
-            </button>
-          </div>
-        </div>
-      </header>
+              </Typography>
+            </Box>
+          </Box>
+          <Button
+            color="inherit"
+            onClick={logout}
+            startIcon={<Logout />}
+            sx={{
+              bgcolor: "rgba(255, 255, 255, 0.15)",
+              "&:hover": { bgcolor: "rgba(255, 255, 255, 0.25)" },
+            }}
+          >
+            Logout
+          </Button>
+        </Toolbar>
+      </AppBar>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <span>🏆</span> My Matches
-          </h2>
-          <button
-            onClick={() => navigate("/create-match")}
-            className="btn btn-primary flex items-center gap-2"
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 4,
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+            }}
           >
-            <span className="text-xl">+</span> Create New Match
-          </button>
-        </div>
+            <EmojiEvents color="primary" /> My Matches
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<Add />}
+            onClick={() => navigate("/create-match")}
+          >
+            Create New Match
+          </Button>
+        </Box>
 
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading matches...</p>
-          </div>
+          <Paper sx={{ p: 6, textAlign: "center" }}>
+            <Typography color="text.secondary">Loading matches...</Typography>
+          </Paper>
         ) : matches.length === 0 ? (
-          <div className="card text-center py-12">
-            <p className="text-gray-600 mb-4">
+          <Paper sx={{ p: 6, textAlign: "center" }}>
+            <SportsCricket
+              sx={{ fontSize: 64, color: "text.disabled", mb: 2 }}
+            />
+            <Typography variant="h6" color="text.secondary" gutterBottom>
               No matches yet. Create your first match!
-            </p>
-            <button
+            </Typography>
+            <Button
+              variant="contained"
+              startIcon={<Add />}
               onClick={() => navigate("/create-match")}
-              className="btn btn-primary"
+              sx={{ mt: 2 }}
             >
               Create Match
-            </button>
-          </div>
+            </Button>
+          </Paper>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+          <Grid container spacing={3}>
             {matches.map((match) => (
-              <div
-                key={match._id}
-                className="card hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 border-l-4 border-primary-500"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2">
-                    {match.name}
-                  </h3>
-                  {getStatusBadge(match.status)}
-                </div>
-
-                <div className="space-y-3 mb-5">
-                  <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-3">
-                    <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                      <span>🏏</span>
-                      <span className="font-bold text-primary-600">
-                        {match.teams[0].name}
-                      </span>
-                      <span className="text-gray-400">vs</span>
-                      <span className="font-bold text-purple-600">
-                        {match.teams[1].name}
-                      </span>
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span>⏱️</span>
-                    <span>{match.oversPerInnings} overs per innings</span>
-                  </div>
-                  <div className="text-sm font-bold text-primary-600">
-                    <span>📊</span> {getMatchScore(match)}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span>📅</span>
-                    <span>
-                      {new Date(match.matchDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {match.status === "not_started" ? (
-                    <>
-                      <button
-                        onClick={() => navigate(`/match/${match._id}/setup`)}
-                        className="btn btn-primary flex-1 text-sm"
-                      >
-                        <span className="mr-1">▶️</span> Start
-                      </button>
-                      <button
-                        onClick={() => navigate(`/match/${match._id}/edit`)}
-                        className="btn btn-secondary text-sm"
-                        title="Edit match details"
-                      >
-                        <span>✏️</span>
-                      </button>
-                    </>
-                  ) : match.status === "in_progress" ? (
-                    <button
-                      onClick={() => navigate(`/match/${match._id}/live`)}
-                      className="btn btn-success flex-1 text-sm"
+              <Grid item xs={12} sm={6} lg={4} key={match._id}>
+                <Card
+                  elevation={2}
+                  sx={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    transition: "all 0.3s",
+                    borderLeft: 4,
+                    borderColor: "primary.main",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: 8,
+                    },
+                  }}
+                >
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "start",
+                        mb: 2,
+                      }}
                     >
-                      <span className="mr-1">🔴</span> Continue
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => navigate(`/match/${match._id}/view`)}
-                      className="btn btn-secondary flex-1 text-sm"
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 700, flexGrow: 1, pr: 1 }}
+                      >
+                        {match.name}
+                      </Typography>
+                      {getStatusChip(match.status)}
+                    </Box>
+
+                    <Stack spacing={2}>
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 2,
+                          background:
+                            "linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%)",
+                        }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                          }}
+                        >
+                          <SportsCricket fontSize="small" />
+                          <span style={{ color: "#0284c7" }}>
+                            {match.teams[0].name}
+                          </span>
+                          <span style={{ color: "#9ca3af" }}>vs</span>
+                          <span style={{ color: "#64748b" }}>
+                            {match.teams[1].name}
+                          </span>
+                        </Typography>
+                      </Paper>
+
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <Timer fontSize="small" color="action" />
+                        <Typography variant="body2" color="text.secondary">
+                          {match.oversPerInnings} overs per innings
+                        </Typography>
+                      </Box>
+
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 600, color: "primary.main" }}
+                      >
+                        {getMatchScore(match)}
+                      </Typography>
+
+                      <Box
+                        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                      >
+                        <CalendarToday fontSize="small" color="action" />
+                        <Typography variant="caption" color="text.secondary">
+                          {new Date(match.matchDate).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </CardContent>
+
+                  <Divider />
+
+                  <CardActions sx={{ p: 2, gap: 1 }}>
+                    {match.status === "not_started" ? (
+                      <>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          startIcon={<PlayArrow />}
+                          onClick={() => navigate(`/match/${match._id}/setup`)}
+                          sx={{ flexGrow: 1 }}
+                        >
+                          Start
+                        </Button>
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => navigate(`/match/${match._id}/edit`)}
+                          title="Edit match details"
+                        >
+                          <Edit />
+                        </IconButton>
+                      </>
+                    ) : match.status === "in_progress" ? (
+                      <Button
+                        variant="contained"
+                        color="info"
+                        size="small"
+                        startIcon={<PlayArrow />}
+                        onClick={() => navigate(`/match/${match._id}/live`)}
+                        sx={{ flexGrow: 1 }}
+                      >
+                        Continue Live
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<Visibility />}
+                        onClick={() => navigate(`/match/${match._id}/view`)}
+                        sx={{ flexGrow: 1 }}
+                      >
+                        View
+                      </Button>
+                    )}
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleDeleteMatch(match._id)}
+                      title="Delete match"
                     >
-                      <span className="mr-1">👁️</span> View
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleDeleteMatch(match._id)}
-                    className="btn btn-danger text-sm"
-                    title="Delete match"
-                  >
-                    <span>🗑️</span>
-                  </button>
-                </div>
-              </div>
+                      <Delete />
+                    </IconButton>
+                  </CardActions>
+                </Card>
+              </Grid>
             ))}
-          </div>
+          </Grid>
         )}
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 };
 

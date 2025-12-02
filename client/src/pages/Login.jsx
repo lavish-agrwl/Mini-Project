@@ -1,10 +1,34 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import {
+  Box,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  Link,
+  Avatar,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Chip,
+} from "@mui/material";
+import {
+  SportsCricket,
+  Email,
+  Lock,
+  Visibility,
+  VisibilityOff,
+  Login as LoginIcon,
+} from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -27,104 +51,183 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-600 via-purple-600 to-indigo-700 px-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
-      </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: "-50%",
+          right: "-50%",
+          width: "100%",
+          height: "100%",
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)",
+          animation: "pulse 15s ease-in-out infinite",
+        },
+        "@keyframes pulse": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.1)" },
+        },
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={24}
+          sx={{
+            p: 4,
+            borderRadius: 4,
+            backdropFilter: "blur(10px)",
+            background: "rgba(255, 255, 255, 0.95)",
+          }}
+        >
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <Avatar
+              sx={{
+                width: 80,
+                height: 80,
+                margin: "0 auto 16px",
+                background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+              }}
+            >
+              <SportsCricket sx={{ fontSize: 48 }} />
+            </Avatar>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{ fontWeight: 700 }}
+            >
+              Cricket Scoreboard
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Sign in to manage your matches
+            </Typography>
+          </Box>
 
-      <div className="card max-w-md w-full relative z-10 animate-scale-in shadow-2xl border-0">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
-            <span className="text-3xl">🏏</span>
-          </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Cricket Scoreboard
-          </h1>
-          <p className="text-gray-600">Sign in to manage your matches</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg animate-slide-up">
-              <div className="flex items-center">
-                <span className="text-xl mr-2">⚠️</span>
-                <span>{error}</span>
-              </div>
-            </div>
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
+              {error}
+            </Alert>
           )}
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Email"
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="input"
-              placeholder="you@example.com"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ mb: 2 }}
             />
-          </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
+            <TextField
+              fullWidth
+              label="Password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="input"
-              placeholder="••••••••"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ mb: 3 }}
             />
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="text-primary-600 hover:text-primary-700 font-medium"
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={loading}
+              startIcon={<LoginIcon />}
+              sx={{
+                py: 1.5,
+                fontSize: "1.1rem",
+                background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #0369a1 0%, #075985 100%)",
+                },
+              }}
             >
-              Sign up
-            </Link>
-          </p>
-        </div>
+              {loading ? "Signing in..." : "Sign In"}
+            </Button>
+          </Box>
 
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 text-center">
-            <p className="text-xs text-gray-500 mb-2 font-medium">
-              🎯 Demo Account
-            </p>
-            <p className="text-sm font-mono text-gray-700">
+          <Box sx={{ mt: 3, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Don't have an account?{" "}
+              <Link
+                component={RouterLink}
+                to="/register"
+                sx={{ fontWeight: 600, textDecoration: "none" }}
+              >
+                Sign up
+              </Link>
+            </Typography>
+          </Box>
+
+          <Divider sx={{ my: 3 }}>
+            <Chip label="Demo Account" size="small" />
+          </Divider>
+
+          <Box
+            sx={{
+              p: 2,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%)",
+              textAlign: "center",
+            }}
+          >
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              display="block"
+              gutterBottom
+            >
+              Try Demo Account
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ fontFamily: "monospace", fontWeight: 600 }}
+            >
               demo@cricket.com / demo123
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

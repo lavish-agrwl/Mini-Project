@@ -1,11 +1,34 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
+import {
+  Box,
+  Container,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  Link,
+  Avatar,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
+import {
+  SportsCricket,
+  Email,
+  Lock,
+  Person,
+  Visibility,
+  VisibilityOff,
+  PersonAdd,
+} from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -28,107 +51,187 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 px-4 relative overflow-hidden">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 -left-20 w-72 h-72 bg-emerald-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute -bottom-20 right-20 w-72 h-72 bg-teal-400 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-      </div>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: "20%",
+          left: "-10%",
+          width: "60%",
+          height: "60%",
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)",
+          animation: "float 20s ease-in-out infinite",
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          bottom: "20%",
+          right: "-10%",
+          width: "60%",
+          height: "60%",
+          background:
+            "radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%)",
+          animation: "float 20s ease-in-out infinite reverse",
+        },
+        "@keyframes float": {
+          "0%, 100%": { transform: "translate(0, 0)" },
+          "50%": { transform: "translate(20px, -20px)" },
+        },
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper
+          elevation={24}
+          sx={{
+            p: 4,
+            borderRadius: 4,
+            backdropFilter: "blur(10px)",
+            background: "rgba(255, 255, 255, 0.95)",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <Avatar
+              sx={{
+                width: 80,
+                height: 80,
+                margin: "0 auto 16px",
+                background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+              }}
+            >
+              <SportsCricket sx={{ fontSize: 48 }} />
+            </Avatar>
+            <Typography
+              variant="h4"
+              component="h1"
+              gutterBottom
+              sx={{ fontWeight: 700 }}
+            >
+              Create Account
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Start scoring your cricket matches
+            </Typography>
+          </Box>
 
-      <div className="card max-w-md w-full relative z-10 animate-scale-in shadow-2xl border-0">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl mb-4 shadow-lg">
-            <span className="text-3xl">🏏</span>
-          </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
-            Create Account
-          </h1>
-          <p className="text-gray-600">Start scoring your cricket matches</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>
               {error}
-            </div>
+            </Alert>
           )}
 
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Name (Optional)
-            </label>
-            <input
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Name (Optional)"
               type="text"
-              id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="input"
-              placeholder="Your name"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Person color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ mb: 2 }}
             />
-          </div>
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
+            <TextField
+              fullWidth
+              label="Email"
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="input"
-              placeholder="you@example.com"
+              margin="normal"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email color="action" />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ mb: 2 }}
             />
-          </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
+            <TextField
+              fullWidth
+              label="Password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
-              className="input"
-              placeholder="At least 6 characters"
+              margin="normal"
+              helperText="At least 6 characters"
+              inputProps={{ minLength: 6 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock color="action" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ mb: 3 }}
             />
-          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary w-full"
-          >
-            {loading ? "Creating account..." : "Sign Up"}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-primary-600 hover:text-primary-700 font-medium"
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              size="large"
+              disabled={loading}
+              startIcon={<PersonAdd />}
+              sx={{
+                py: 1.5,
+                fontSize: "1.1rem",
+                background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #0369a1 0%, #075985 100%)",
+                },
+              }}
             >
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+              {loading ? "Creating account..." : "Sign Up"}
+            </Button>
+          </Box>
+
+          <Box sx={{ mt: 3, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Already have an account?{" "}
+              <Link
+                component={RouterLink}
+                to="/login"
+                sx={{ fontWeight: 600, textDecoration: "none" }}
+              >
+                Sign in
+              </Link>
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

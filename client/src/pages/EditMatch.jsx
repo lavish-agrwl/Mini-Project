@@ -136,7 +136,7 @@ const EditMatch = () => {
 
           {!canEditStructure && (
             <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg mb-6">
-              <p className="font-medium">⚠️ Match has started</p>
+              <p className="font-medium">Match has started</p>
               <p className="text-sm mt-1">
                 You can only edit the match name, date, and notes. Teams and
                 overs cannot be changed once a match has started.

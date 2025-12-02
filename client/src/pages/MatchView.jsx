@@ -119,8 +119,7 @@ const MatchView = () => {
             <div className="flex justify-between items-start">
               <div>
                 <div className="flex items-center gap-3 mb-2">
-                  <span className="text-3xl">🏏</span>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
                     {match.name}
                   </h1>
                 </div>
@@ -128,7 +127,6 @@ const MatchView = () => {
                   {match.teams[0].name} vs {match.teams[1].name}
                 </p>
                 <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                  <span>📅</span>{" "}
                   {new Date(match.matchDate).toLocaleDateString()} •{" "}
                   {match.oversPerInnings} overs
                 </p>
@@ -204,17 +202,15 @@ const MatchView = () => {
         </div>
 
         {/* Ball-by-Ball History */}
-        <div className="card border-2 border-purple-200">
+        <div className="card border-2 border-primary-200">
           <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">📊</span>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
               Ball-by-Ball Commentary
             </h2>
           </div>
 
           {match.innings.length === 0 ? (
-            <div className="text-center py-12 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
-              <span className="text-6xl mb-4 block">🏏</span>
+            <div className="text-center py-12 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl">
               <p className="text-xl font-semibold text-gray-700 mb-2">
                 No balls recorded yet
               </p>
@@ -229,8 +225,7 @@ const MatchView = () => {
                 <div key={inningIdx} className="mb-8 last:mb-0">
                   <div className="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-6 py-3 rounded-xl mb-4">
                     <h3 className="text-xl font-bold flex items-center gap-2">
-                      <span>🏏</span> Inning {inningIdx + 1} - {team.name}{" "}
-                      Batting
+                      Inning {inningIdx + 1} - {team.name} Batting
                     </h3>
                   </div>
 
@@ -278,12 +273,8 @@ const MatchView = () => {
                                     ? `Bye ${ball.runs}`
                                     : ball.eventType === "leg-bye"
                                     ? `Leg Bye ${ball.runs}`
-                                    : `${ball.runs} ${
-                                        ball.runs === 4
-                                          ? "🏏"
-                                          : ball.runs === 6
-                                          ? "🎯"
-                                          : ""
+                                    : `${ball.runs}${
+                                        ball.runs >= 4 ? " runs" : ""
                                       }`}
                                 </span>
                               </div>
@@ -323,7 +314,7 @@ const MatchView = () => {
             </div>
             <div className="bg-blue-50 rounded-lg p-3 mb-6">
               <p className="text-sm font-semibold text-gray-700">
-                📍 Over {editingBall.overNumber}.{editingBall.ballInOver}
+                Over {editingBall.overNumber}.{editingBall.ballInOver}
               </p>
             </div>
 
