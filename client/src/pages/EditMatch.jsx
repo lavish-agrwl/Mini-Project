@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { matchAPI } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const EditMatch = () => {
   const { id } = useParams();
@@ -110,11 +111,7 @@ const EditMatch = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-lg text-gray-600">Loading match details...</div>
-      </div>
-    );
+    return <LoadingSpinner message="Loading match details..." />;
   }
 
   return (

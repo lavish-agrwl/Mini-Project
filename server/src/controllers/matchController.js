@@ -395,6 +395,13 @@ export const recordBall = async (req, res) => {
           match.current.nonStrikerId = temp;
         }
       }
+    } else {
+      // For no-balls and wides, rotate strike if odd runs scored
+      if (runs % 2 === 1) {
+        const temp = match.current.strikerId;
+        match.current.strikerId = match.current.nonStrikerId;
+        match.current.nonStrikerId = temp;
+      }
     }
 
     // Handle wicket

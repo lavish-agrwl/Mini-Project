@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { matchAPI } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
+import TeamVsDisplay from "../components/TeamVsDisplay";
 
 const MatchView = () => {
   const { id } = useParams();
@@ -86,11 +88,7 @@ const MatchView = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading match...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Loading match..." />;
   }
 
   if (!match) {
@@ -123,9 +121,12 @@ const MatchView = () => {
                     {match.name}
                   </h1>
                 </div>
-                <p className="text-lg font-semibold text-gray-700">
-                  {match.teams[0].name} vs {match.teams[1].name}
-                </p>
+                <div className="text-lg font-semibold text-gray-700">
+                  <TeamVsDisplay
+                    teamA={match.teams[0].name}
+                    teamB={match.teams[1].name}
+                  />
+                </div>
                 <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
                   {new Date(match.matchDate).toLocaleDateString()} •{" "}
                   {match.oversPerInnings} overs

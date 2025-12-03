@@ -104,7 +104,7 @@ const Login = () => {
               gutterBottom
               sx={{ fontWeight: 700 }}
             >
-              Cricket Scoreboard
+              CricScore
             </Typography>
             <Typography variant="body1" color="text.secondary">
               Sign in to manage your matches

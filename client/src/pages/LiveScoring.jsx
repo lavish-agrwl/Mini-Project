@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { matchAPI } from "../services/api";
+import LoadingSpinner from "../components/LoadingSpinner";
+import BatsmanCard from "../components/BatsmanCard";
+import BallButton from "../components/BallButton";
 
 const LiveScoring = () => {
   const { id } = useParams();
@@ -11,6 +14,7 @@ const LiveScoring = () => {
   const [error, setError] = useState("");
   const [showExtraMenu, setShowExtraMenu] = useState(false);
   const [showWicketMenu, setShowWicketMenu] = useState(false);
+  const [showNoBallRunsMenu, setShowNoBallRunsMenu] = useState(false);
   const [editingBall, setEditingBall] = useState(null);
   const [editFormData, setEditFormData] = useState({
     eventType: "runs",
@@ -61,6 +65,11 @@ const LiveScoring = () => {
   };
 
   const handleExtra = async (extraType, runs = 1) => {
+    if (extraType === "no-ball") {
+      setShowNoBallRunsMenu(true);
+      setShowExtraMenu(false);
+      return;
+    }
     await recordBall({
       eventType: extraType,
       runs,
@@ -69,6 +78,17 @@ const LiveScoring = () => {
       notes: "",
     });
     setShowExtraMenu(false);
+  };
+
+  const handleNoBallWithRuns = async (runsScored) => {
+    await recordBall({
+      eventType: "no-ball",
+      runs: 1 + runsScored, // 1 penalty + runs scored
+      batsmanId: match.current.strikerId,
+      extraType: "no-ball",
+      notes: runsScored > 0 ? `No-ball + ${runsScored} runs` : "No-ball",
+    });
+    setShowNoBallRunsMenu(false);
   };
 
   const recordBall = async (ballData) => {
@@ -128,11 +148,7 @@ const LiveScoring = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading match...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Loading match..." />;
   }
 
   if (!match || match.status !== "in_progress") {
@@ -263,37 +279,8 @@ const LiveScoring = () => {
                 Current Batsmen
               </h3>
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-400 shadow-md">
-                  <div>
-                    <span className="font-bold text-lg">{striker?.name}</span>
-                    <span className="badge bg-green-500 text-white ml-2">
-                      ★ STRIKE
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-green-600">
-                      {striker?.runs || 0}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      ({striker?.ballsFaced || 0} balls)
-                    </div>
-                  </div>
-                </div>
-                <div className="flex justify-between items-center p-4 bg-gray-50 rounded-xl border border-gray-200">
-                  <div>
-                    <span className="font-bold text-lg">
-                      {nonStriker?.name}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold text-gray-700">
-                      {nonStriker?.runs || 0}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      ({nonStriker?.ballsFaced || 0} balls)
-                    </div>
-                  </div>
-                </div>
+                <BatsmanCard player={striker} isStriker={true} />
+                <BatsmanCard player={nonStriker} isStriker={false} />
               </div>
             </div>
 
@@ -319,19 +306,18 @@ const LiveScoring = () => {
                     </p>
                     <div className="grid grid-cols-7 gap-2">
                       {[0, 1, 2, 3, 4, 5, 6].map((runs) => (
-                        <button
+                        <BallButton
                           key={runs}
+                          label={runs}
                           onClick={() => handleRunClick(runs)}
-                          className={`btn ${
+                          color={
                             runs === 0
-                              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              ? "inherit"
                               : runs === 4 || runs === 6
-                              ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700"
-                              : "bg-gradient-to-br from-primary-500 to-blue-600 text-white hover:from-primary-600 hover:to-blue-700"
-                          } text-xl font-bold h-16 shadow-lg hover:shadow-xl`}
-                        >
-                          {runs}
-                        </button>
+                              ? "success"
+                              : "primary"
+                          }
+                        />
                       ))}
                     </div>
                   </div>
@@ -369,7 +355,7 @@ const LiveScoring = () => {
                           onClick={() => handleExtra("no-ball", 1)}
                           className="btn bg-white border-2 border-orange-300 text-orange-700 hover:bg-orange-50 font-semibold"
                         >
-                          No Ball (1 run)
+                          No Ball (+runs)
                         </button>
                         <button
                           onClick={() => handleExtra("bye", 1)}
@@ -610,6 +596,36 @@ const LiveScoring = () => {
           </div>
         </div>
       </div>
+
+      {/* No-Ball Runs Menu */}
+      {showNoBallRunsMenu && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl border-2 border-amber-200 animate-scale-in">
+            <h3 className="text-2xl font-bold mb-4 text-amber-700">
+              No-Ball Runs
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Select runs scored off the no-ball (plus 1 penalty run)
+            </p>
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              {[0, 1, 2, 3, 4, 5, 6].map((runs) => (
+                <BallButton
+                  key={runs}
+                  label={runs}
+                  onClick={() => handleNoBallWithRuns(runs)}
+                  color={runs === 4 || runs === 6 ? "success" : "warning"}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => setShowNoBallRunsMenu(false)}
+              className="btn btn-secondary w-full"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Edit Ball Modal */}
       {editingBall && (
